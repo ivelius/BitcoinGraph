@@ -8,10 +8,8 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 import java.util.Collections;
@@ -19,23 +17,31 @@ import java.util.List;
 
 
 /**
- * TODO: document your custom view class.
+ * This is a rather simple Graph rendering view
+ * that is plotting a graph using x:y positions
+ *
+ * It has also additional representation of the values and time
+ * on x and y axises.
+ *
+ * TODO : add pinch to zoom functionality
  */
 public class GraphView extends View {
-    private String mExampleString; // TODO: use a default from R.string...
-    private int mExampleColor = Color.RED; // TODO: use a default from R.color...
-    private float mExampleDimension = 0; // TODO: use a default from R.dimen...
-    private Drawable mExampleDrawable;
 
-    private TextPaint mTextPaint;
-    private Paint mLinePaint;
-    private float mTextWidth;
-    private float mTextHeight;
+    //render data list
     private List<GraphPoint> mDataList;
 
+    //color of the graph
+    private int mGraphColor;
+
+    //paints used for drawing
+    private TextPaint mTextPaint;
+    private Paint mLinePaint;
+
+    //Edge unix timestamp values
     private long mMinUnixTimestampVal;
     private long mMaxUnixTimeStampVal;
 
+    //edge currency values
     private double mMinValueCurrecncyVal;
     private double mMaxValueCurrecncyVal;
 
@@ -57,14 +63,6 @@ public class GraphView extends View {
 
         public double getCurrencyValue() {
             return mCurrencyValue;
-        }
-
-        @Override
-        public String toString() {
-            return "{" +
-                    "mCurrencyValue:" + mCurrencyValue +
-                    ", mUnixTimestamp:" + mUnixTimestamp +
-                    '}';
         }
     }
 
@@ -92,22 +90,9 @@ public class GraphView extends View {
         final TypedArray a = getContext().obtainStyledAttributes(
                 attrs, R.styleable.GraphView, defStyle, 0);
 
-        mExampleString = a.getString(
-                R.styleable.GraphView_exampleString);
-        mExampleColor = a.getColor(
-                R.styleable.GraphView_exampleColor,
-                mExampleColor);
-        // Use getDimensionPixelSize or getDimensionPixelOffset when dealing with
-        // values that should fall on pixel boundaries.
-        mExampleDimension = a.getDimension(
-                R.styleable.GraphView_exampleDimension,
-                mExampleDimension);
-
-        if (a.hasValue(R.styleable.GraphView_exampleDrawable)) {
-            mExampleDrawable = a.getDrawable(
-                    R.styleable.GraphView_exampleDrawable);
-            mExampleDrawable.setCallback(this);
-        }
+        mGraphColor = a.getColor(
+                R.styleable.GraphView_graphColor,
+                mGraphColor);
 
         a.recycle();
 
@@ -126,12 +111,12 @@ public class GraphView extends View {
     }
 
     private void invalidateTextPaintAndMeasurements() {
-        mTextPaint.setTextSize(mExampleDimension);
-        mTextPaint.setColor(mExampleColor);
-        mTextWidth = mTextPaint.measureText(mExampleString);
+        mTextPaint.setTextSize(15);
+        mTextPaint.setColor(Color.BLACK);
+//        mTextWidth = mTextPaint.measureText(mExampleString);
 
         Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
-        mTextHeight = fontMetrics.bottom;
+//        mTextHeight = fontMetrics.bottom;
     }
 
     @Override
@@ -151,44 +136,8 @@ public class GraphView extends View {
         int contentWidth = getWidth() - paddingLeft - paddingRight;
         int contentHeight = getHeight() - paddingTop - paddingBottom;
 
-//        long timespanWidth = mDataList.get(mDataList.size() - 1).getUnixTimestamp() - mDataList.get(0).getUnixTimestamp();
-//        double timespanHeight = mDataList.get(mDataList.size() - 1).getCurrencyValue() - mDataList.get(0).getCurrencyValue();
-
-        final double unixTimestampSpan = ((double) mMaxUnixTimeStampVal - mMinUnixTimestampVal);
-        final double currencyValueSpan = mMaxValueCurrecncyVal - mMinValueCurrecncyVal;
-
-        float startX;
-        float startY;
-        float stopX;
-        float stopY;
-
-        //amount of items we should iterate through
-        //as we always look at the item ahead , it is enough
-        //to iterate until one item before the last in collection
-        final int iterationCount = mDataList.size() - 1;
-        for (int i = 0; i < iterationCount; i++) {
-            GraphPoint currItem = mDataList.get(i);
-            GraphPoint nextItem = mDataList.get(i + 1);
-
-            //TODO : extract to func
-            float relativeStartX = (float) toRelative(unixTimestampSpan, (double) currItem.getUnixTimestamp(), (double) mMinUnixTimestampVal);
-            float relativeStopX = (float) toRelative(unixTimestampSpan, (double) nextItem.getUnixTimestamp(), (double) mMinUnixTimestampVal);
-
-            //invert y axis
-            float relativeStartY = 1f - (float)toRelative(currencyValueSpan, currItem.getCurrencyValue(), mMinValueCurrecncyVal);
-
-            //invert y axis
-            float relativeStopY = 1f - (float)toRelative(currencyValueSpan, nextItem.getCurrencyValue(), mMinValueCurrecncyVal);
-
-            startX = contentWidth * relativeStartX;
-            startY = contentHeight * relativeStartY;
-            stopX = contentWidth * relativeStopX;
-            stopY = contentHeight * relativeStopY;
-
-
-            canvas.drawLine(startX, startY, stopX, stopY, mLinePaint);
-            Log.d("yan", startX + ":" + startY + "||" + stopX + ":" + stopY);
-        }
+        //draw the actual graph
+        plotGraph(canvas, contentWidth, contentHeight);
 
 //        // Draw the text.
 //        canvas.drawText(mExampleString,
@@ -204,87 +153,55 @@ public class GraphView extends View {
 //        }
     }
 
+    /**
+     * This function plots the graph on the canvas
+     * @param canvas
+     * @param contentWidth
+     * @param contentHeight
+     */
+    private void plotGraph(Canvas canvas, int contentWidth, int contentHeight) {
+
+        //we need to calculate the total length of the values that lies between maximum and minimum
+        final double unixTimestampSpan = ((double) mMaxUnixTimeStampVal - mMinUnixTimestampVal);
+        final double currencyValueSpan = mMaxValueCurrecncyVal - mMinValueCurrecncyVal;
+
+        //those are the values of the view that will be drawn
+        float startX,startY,stopX,stopY;
+
+        //amount of items we should iterate through
+        //as we always look at the item ahead , it is enough
+        //to iterate until one item before the last in collection
+        final int iterationCount = mDataList.size() - 1;
+        for (int i = 0; i < iterationCount; i++) {
+
+            //get the current data item and the next
+            //to draw a line between them
+            GraphPoint currItem = mDataList.get(i);
+            GraphPoint nextItem = mDataList.get(i + 1);
+
+            //calculate start point in relative units (0 ... 1)
+            float relativeStartX = (float) toRelative(unixTimestampSpan, (double) currItem.getUnixTimestamp(), (double) mMinUnixTimestampVal);
+            float relativeStopX = (float) toRelative(unixTimestampSpan, (double) nextItem.getUnixTimestamp(), (double) mMinUnixTimestampVal);
+
+            //calculate stop point in relative units (0 ... 1)
+            //we also need to invert y axis , because in android view Y axis goes from top to bottom
+            float relativeStartY = 1f - (float)toRelative(currencyValueSpan, currItem.getCurrencyValue(), mMinValueCurrecncyVal);
+            float relativeStopY = 1f - (float)toRelative(currencyValueSpan, nextItem.getCurrencyValue(), mMinValueCurrecncyVal);
+
+            //to obtain the actual points on the view we need
+            //to translate back the relative positions to actual
+            //view dimensions
+            startX = contentWidth * relativeStartX;
+            stopX = contentWidth * relativeStopX;
+            startY = contentHeight * relativeStartY;
+            stopY = contentHeight * relativeStopY;
+
+            canvas.drawLine(startX, startY, stopX, stopY, mLinePaint);
+        }
+    }
+
     private double toRelative(double totalSpan, double currentValue, double minValue) {
         return ((currentValue - minValue) / totalSpan);
-    }
-
-    /**
-     * Gets the example string attribute value.
-     *
-     * @return The example string attribute value.
-     */
-    public String getExampleString() {
-        return mExampleString;
-    }
-
-    /**
-     * Sets the view's example string attribute value. In the example view, this string
-     * is the text to draw.
-     *
-     * @param exampleString The example string attribute value to use.
-     */
-    public void setExampleString(String exampleString) {
-        mExampleString = exampleString;
-        invalidateTextPaintAndMeasurements();
-    }
-
-    /**
-     * Gets the example color attribute value.
-     *
-     * @return The example color attribute value.
-     */
-    public int getExampleColor() {
-        return mExampleColor;
-    }
-
-    /**
-     * Sets the view's example color attribute value. In the example view, this color
-     * is the font color.
-     *
-     * @param exampleColor The example color attribute value to use.
-     */
-    public void setExampleColor(int exampleColor) {
-        mExampleColor = exampleColor;
-        invalidateTextPaintAndMeasurements();
-    }
-
-    /**
-     * Gets the example dimension attribute value.
-     *
-     * @return The example dimension attribute value.
-     */
-    public float getExampleDimension() {
-        return mExampleDimension;
-    }
-
-    /**
-     * Sets the view's example dimension attribute value. In the example view, this dimension
-     * is the font size.
-     *
-     * @param exampleDimension The example dimension attribute value to use.
-     */
-    public void setExampleDimension(float exampleDimension) {
-        mExampleDimension = exampleDimension;
-        invalidateTextPaintAndMeasurements();
-    }
-
-    /**
-     * Gets the example drawable attribute value.
-     *
-     * @return The example drawable attribute value.
-     */
-    public Drawable getExampleDrawable() {
-        return mExampleDrawable;
-    }
-
-    /**
-     * Sets the view's example drawable attribute value. In the example view, this drawable is
-     * drawn above the text.
-     *
-     * @param exampleDrawable The example drawable attribute value to use.
-     */
-    public void setExampleDrawable(Drawable exampleDrawable) {
-        mExampleDrawable = exampleDrawable;
     }
 
     public void setDataList(List<GraphPoint> dataList) {
