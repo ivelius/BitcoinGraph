@@ -7,7 +7,10 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
-
+/**
+ * The entry point of the app.
+ * It is also implements the view part of the MVP structure.
+ */
 public class MainActivity extends AppCompatActivity implements MainContract.IMainView {
 
     private GraphView mGraphView;
@@ -24,6 +27,8 @@ public class MainActivity extends AppCompatActivity implements MainContract.IMai
 
         //create and bind to the presenter
         bindPresenter(new MainPresenter());
+        mMainPresenter.restoreState(savedInstanceState);
+        mMainPresenter.loadData();
     }
 
 
@@ -35,9 +40,15 @@ public class MainActivity extends AppCompatActivity implements MainContract.IMai
 
     @Override
     public void unbindPresenter() {
+        mMainPresenter.unbindView();
         mMainPresenter = null;
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        mMainPresenter.onSaveInstanceState(outState);
+        super.onSaveInstanceState(outState);
+    }
 
     @Override
     public void setDisplayModel(DisplayModel displayModel) {
@@ -47,5 +58,14 @@ public class MainActivity extends AppCompatActivity implements MainContract.IMai
         if (mTitleTextView != null) {
             mTitleTextView.setText(displayModel.getTitle());
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        //There are different approaches to MVP
+        //some prefer presenters to survive orientation changes
+        //I personally prefer them to be destroyed
+        unbindPresenter();
+        super.onDestroy();
     }
 }
