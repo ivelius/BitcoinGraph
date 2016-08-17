@@ -1,5 +1,6 @@
 package com.example.yanbraslavski.bitcoingraph;
 
+import com.example.yanbraslavski.bitcoingraph.main.MainActivity;
 import com.example.yanbraslavski.bitcoingraph.utils.AppUtils;
 
 import org.junit.Rule;
