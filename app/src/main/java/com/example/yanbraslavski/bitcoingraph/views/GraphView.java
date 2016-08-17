@@ -176,19 +176,20 @@ public class GraphView extends View {
         mLinePaint.setStrokeWidth(DEFAULT_VALUE_LINES_STOKE_WIDTH);
 
         //we draw the lines with offset from the border
-        final float startX = mMaxValueTextWidth + mOffsetFromTheText;
+        final float startX = getPaddingLeft() + mMaxValueTextWidth + mOffsetFromTheText;
 
         for (int i = 0; i < amountOfCheckpoints; i++) {
 
             //skip first line (Looks prettier)
-            if (i == 0 ) continue;
+            if (i == 0) continue;
 
-            final float y = i * distanceBetweenCheckpoints;
+            final float yOffset = (i * distanceBetweenCheckpoints);
             final int currencyAmount = (int) (amountOfCurrencyForOnePoint * i);
-            canvas.drawLine(startX, y, contentWidth, y, mLinePaint);
+            final int stopX = getWidth() - getPaddingRight();
+            canvas.drawLine(startX, yOffset + getPaddingTop(), stopX, yOffset + getPaddingTop(), mLinePaint);
             canvas.drawText(String.format("%03d", currencyAmount),
                     getPaddingLeft(),
-                    (contentHeight - y) - getPaddingTop(),
+                    (getPaddingTop() + contentHeight - yOffset),
                     mTextPaint);
         }
 
@@ -241,12 +242,12 @@ public class GraphView extends View {
             //view dimensions
             startX = contentWidth * relativeStartX;
             stopX = contentWidth * relativeStopX;
-            startY = contentHeight * relativeStartY;
-            stopY = contentHeight * relativeStopY;
+            startY = getPaddingTop() + (contentHeight * relativeStartY);
+            stopY = getPaddingTop() + (contentHeight * relativeStopY);
 
             //correct with the offset
-            startX += leftOffset;
-            stopX += leftOffset;
+            startX += getPaddingLeft() + leftOffset;
+            stopX += getPaddingLeft() + leftOffset;
 
             canvas.drawLine(startX, startY, stopX, stopY, mLinePaint);
         }

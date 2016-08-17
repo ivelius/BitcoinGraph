@@ -13,6 +13,7 @@
         android:layout_height="match_parent"
         android:background="#ccc"
         android:layout_margin="20dp"
+        android:padding="5dp"
         app:graphColor="#33b5e5" />
 
 </FrameLayout>
