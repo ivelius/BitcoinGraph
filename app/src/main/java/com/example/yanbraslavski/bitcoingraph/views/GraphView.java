@@ -27,6 +27,13 @@ import java.util.List;
  */
 public class GraphView extends View {
 
+    public static final int DEFAULT_GRAPH_COLOR = Color.RED;
+    public static final int DEFAULT_VALUE_LINES_COLOR = Color.BLACK;
+    public static final int DEFAULT_VALUE_LINES_STOKE_WIDTH = 1;
+    public static final int DEFAULT_GRAPH_STOKE_WIDTH = 5;
+    public static final int AMOUNT_OF_MEASUERD_CURRENCY_LINES = 10;
+    public static final String MEASUREMENT_VALUE_STRING_PATTERN = "***";
+    public static final int DEFAULT_TEXT_SIZE = 24;
     //render data list
     private List<GraphPoint> mDataList;
 
@@ -44,6 +51,8 @@ public class GraphView extends View {
     //edge currency values
     private double mMinValueCurrecncyVal;
     private double mMaxValueCurrecncyVal;
+    private float mMaxValueTextWidth;
+    private float mOffsetFromTheText;
 
     /**
      * Used to describe a data that will be rendered by the graph
@@ -90,33 +99,43 @@ public class GraphView extends View {
         final TypedArray a = getContext().obtainStyledAttributes(
                 attrs, R.styleable.GraphView, defStyle, 0);
 
-        mGraphColor = a.getColor(
-                R.styleable.GraphView_graphColor,
-                mGraphColor);
+        if (a.hasValue(R.styleable.GraphView_graphColor)) {
+            mGraphColor = a.getColor(
+                    R.styleable.GraphView_graphColor,
+                    mGraphColor);
+        } else {
+            mGraphColor = DEFAULT_GRAPH_COLOR;
+        }
 
         a.recycle();
 
         // Set up a default TextPaint object
+        initTextPaint();
+
+        //initialise line paint
+        initLinePaint();
+
+        measureTextOffsets();
+    }
+
+    private void measureTextOffsets() {
+        //we need to calculate width of the represented metrics on the graph
+        mMaxValueTextWidth = mTextPaint.measureText(MEASUREMENT_VALUE_STRING_PATTERN);
+        //we just calculate some reasonable offset from the text
+        mOffsetFromTheText = mTextPaint.measureText("**");
+    }
+
+    private void initLinePaint() {
+        mLinePaint = new Paint();
+        mLinePaint.setStyle(Paint.Style.STROKE);
+    }
+
+    private void initTextPaint() {
         mTextPaint = new TextPaint();
         mTextPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
         mTextPaint.setTextAlign(Paint.Align.LEFT);
-
-        mLinePaint = new Paint();
-        mLinePaint.setColor(Color.RED);
-        mLinePaint.setStyle(Paint.Style.STROKE);
-        mLinePaint.setStrokeWidth(5);
-
-        // Update TextPaint and text measurements from attributes
-        invalidateTextPaintAndMeasurements();
-    }
-
-    private void invalidateTextPaintAndMeasurements() {
-        mTextPaint.setTextSize(15);
+        mTextPaint.setTextSize(DEFAULT_TEXT_SIZE);
         mTextPaint.setColor(Color.BLACK);
-//        mTextWidth = mTextPaint.measureText(mExampleString);
-
-        Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
-//        mTextHeight = fontMetrics.bottom;
     }
 
     @Override
@@ -136,37 +155,66 @@ public class GraphView extends View {
         int contentWidth = getWidth() - paddingLeft - paddingRight;
         int contentHeight = getHeight() - paddingTop - paddingBottom;
 
+        //draw the values and dates
+        drawCurrencyMetrics(canvas, contentWidth, contentHeight);
+
         //draw the actual graph
         plotGraph(canvas, contentWidth, contentHeight);
 
-//        // Draw the text.
-//        canvas.drawText(mExampleString,
-//                paddingLeft + (contentWidth - mTextWidth) / 2,
-//                paddingTop + (contentHeight + mTextHeight) / 2,
-//                mTextPaint);
-//
-//        // Draw the example drawable on top of the text.
-//        if (mExampleDrawable != null) {
-//            mExampleDrawable.setBounds(paddingLeft, paddingTop,
-//                    paddingLeft + contentWidth, paddingTop + contentHeight);
-//            mExampleDrawable.draw(canvas);
-//        }
+    }
+
+    private void drawCurrencyMetrics(Canvas canvas, int contentWidth, int contentHeight) {
+
+        final double currencyValueSpan = mMaxValueCurrecncyVal - mMinValueCurrecncyVal;
+        final int amountOfCheckpoints = AMOUNT_OF_MEASUERD_CURRENCY_LINES;
+        final float distanceBetweenCheckpoints = (float) contentHeight / (float) amountOfCheckpoints;
+
+        final float amountOfCurrencyForOnePoint = (float) currencyValueSpan / (float) AMOUNT_OF_MEASUERD_CURRENCY_LINES;
+
+        //setup the line paint for graph
+        mLinePaint.setColor(DEFAULT_VALUE_LINES_COLOR);
+        mLinePaint.setStrokeWidth(DEFAULT_VALUE_LINES_STOKE_WIDTH);
+
+        //we draw the lines with offset from the border
+        final float startX = mMaxValueTextWidth + mOffsetFromTheText;
+
+        for (int i = 0; i < amountOfCheckpoints; i++) {
+
+            //skip first line (Looks prettier)
+            if (i == 0 ) continue;
+
+            final float y = i * distanceBetweenCheckpoints;
+            final int currencyAmount = (int) (amountOfCurrencyForOnePoint * i);
+            canvas.drawLine(startX, y, contentWidth, y, mLinePaint);
+            canvas.drawText(String.format("%03d", currencyAmount),
+                    getPaddingLeft(),
+                    (contentHeight - y) - getPaddingTop(),
+                    mTextPaint);
+        }
+
     }
 
     /**
      * This function plots the graph on the canvas
-     * @param canvas
-     * @param contentWidth
-     * @param contentHeight
      */
     private void plotGraph(Canvas canvas, int contentWidth, int contentHeight) {
+
+        //we are not drawing the graph on the entire view space
+        //we need to shrink the space by the offset from the edges
+        final float leftOffset = mMaxValueTextWidth + mOffsetFromTheText;
+        contentWidth -= leftOffset;
+
+        //setup the line paint for graph
+        mLinePaint.setColor(mGraphColor);
+        mLinePaint.setStrokeWidth(DEFAULT_GRAPH_STOKE_WIDTH);
 
         //we need to calculate the total length of the values that lies between maximum and minimum
         final double unixTimestampSpan = ((double) mMaxUnixTimeStampVal - mMinUnixTimestampVal);
         final double currencyValueSpan = mMaxValueCurrecncyVal - mMinValueCurrecncyVal;
 
         //those are the values of the view that will be drawn
-        float startX,startY,stopX,stopY;
+        float startX, startY, stopX, stopY;
+
 
         //amount of items we should iterate through
         //as we always look at the item ahead , it is enough
@@ -185,8 +233,8 @@ public class GraphView extends View {
 
             //calculate stop point in relative units (0 ... 1)
             //we also need to invert y axis , because in android view Y axis goes from top to bottom
-            float relativeStartY = 1f - (float)toRelative(currencyValueSpan, currItem.getCurrencyValue(), mMinValueCurrecncyVal);
-            float relativeStopY = 1f - (float)toRelative(currencyValueSpan, nextItem.getCurrencyValue(), mMinValueCurrecncyVal);
+            float relativeStartY = 1f - (float) toRelative(currencyValueSpan, currItem.getCurrencyValue(), mMinValueCurrecncyVal);
+            float relativeStopY = 1f - (float) toRelative(currencyValueSpan, nextItem.getCurrencyValue(), mMinValueCurrecncyVal);
 
             //to obtain the actual points on the view we need
             //to translate back the relative positions to actual
@@ -196,10 +244,18 @@ public class GraphView extends View {
             startY = contentHeight * relativeStartY;
             stopY = contentHeight * relativeStopY;
 
+            //correct with the offset
+            startX += leftOffset;
+            stopX += leftOffset;
+
             canvas.drawLine(startX, startY, stopX, stopY, mLinePaint);
         }
     }
 
+    /**
+     * Takes the total units span (length) and the current value
+     * that will be translated to the value span between 0 to 1
+     */
     private double toRelative(double totalSpan, double currentValue, double minValue) {
         return ((currentValue - minValue) / totalSpan);
     }
@@ -210,7 +266,11 @@ public class GraphView extends View {
     }
 
     private void onDataSetChanged() {
+        //we must recalculate the edge values of the graph to present it exactly
+        //within the boundaries of the view
         calculateEdgeValues();
+
+        //force redraw
         invalidate();
     }
 
