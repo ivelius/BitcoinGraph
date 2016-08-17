@@ -1,19 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout android:id="@+id/activity_main"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout android:id="@+id/activity_main"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:padding="@dimen/activity_horizontal_margin"
     tools:context="com.example.yanbraslavski.bitcoingraph.MainActivity">
+
+    <TextView
+        android:id="@+id/graph_title_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        tools:text="Graph Title Goes Here"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
     <com.example.yanbraslavski.bitcoingraph.views.GraphView
         android:id="@+id/graph_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#ccc"
-        android:layout_margin="20dp"
-        android:padding="5dp"
-        app:graphColor="#33b5e5" />
+        android:layout_width="@dimen/graph_size_portrait"
+        android:layout_height="@dimen/graph_size_portrait"
+        android:layout_margin="@dimen/graph_margin"
+        android:background="@color/graphBackground"
+        android:padding="@dimen/graph_padding"
+        app:graphColor="@color/graphColor" />
 
-</FrameLayout>
+</LinearLayout>
