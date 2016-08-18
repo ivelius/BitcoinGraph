@@ -15,8 +15,8 @@ import rx.Subscription;
 
 /**
  * Created by yan.braslavski on 8/17/16.
+ * Main Presenter is a part of the main MVP.
  */
-
 public class MainPresenter extends BasePresenter<MainContract.IMainView> implements MainContract.IMainPresenter {
 
     public static final String KEY_CACHED_DATA = "cached_data";

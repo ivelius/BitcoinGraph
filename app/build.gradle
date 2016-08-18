@@ -39,6 +39,8 @@ def rxAndroidVersion = "1.2.1"
 def annimonStreamApiVersion = "1.1.1"
 def androidTestRunnerVersion = "0.4.+"
 def junitVersion = "4.12"
+def mockitoVersion = '1.10.19'
+def powerMockito = '1.6.2'
 
 //this is a not so elegant fix for conflicting dependencies
 configurations.all {
@@ -69,4 +71,7 @@ dependencies {
 
     //Unit tests
     testCompile "junit:junit:$junitVersion"
+    testCompile "org.mockito:mockito-all:$mockitoVersion"
+    testCompile "org.powermock:powermock-module-junit4:$powerMockito"
+    testCompile "org.powermock:powermock-api-mockito:$powerMockito"
 }
