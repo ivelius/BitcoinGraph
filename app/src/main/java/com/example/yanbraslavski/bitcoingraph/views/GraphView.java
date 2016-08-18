@@ -8,6 +8,8 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.View;
@@ -57,7 +59,7 @@ public class GraphView extends View {
     /**
      * Used to describe a data that will be rendered by the graph
      */
-    public static class GraphPoint {
+    public static class GraphPoint implements Parcelable {
         private long mUnixTimestamp;
         private double mCurrencyValue;
 
@@ -73,6 +75,35 @@ public class GraphView extends View {
         public double getCurrencyValue() {
             return mCurrencyValue;
         }
+
+        protected GraphPoint(Parcel in) {
+            mUnixTimestamp = in.readLong();
+            mCurrencyValue = in.readDouble();
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeLong(mUnixTimestamp);
+            dest.writeDouble(mCurrencyValue);
+        }
+
+        @SuppressWarnings("unused")
+        public static final Parcelable.Creator<GraphPoint> CREATOR = new Parcelable.Creator<GraphPoint>() {
+            @Override
+            public GraphPoint createFromParcel(Parcel in) {
+                return new GraphPoint(in);
+            }
+
+            @Override
+            public GraphPoint[] newArray(int size) {
+                return new GraphPoint[size];
+            }
+        };
     }
 
     public GraphView(Context context) {
