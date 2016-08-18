@@ -51,8 +51,8 @@ public class GraphView extends View {
     private long mMaxUnixTimeStampVal;
 
     //edge currency values
-    private double mMinValueCurrecncyVal;
-    private double mMaxValueCurrecncyVal;
+    private double mMinValueCurrencyVal;
+    private double mMaxValueCurrencyVal;
     private float mMaxValueTextWidth;
     private float mOffsetFromTheText;
 
@@ -196,7 +196,7 @@ public class GraphView extends View {
 
     private void drawCurrencyMetrics(Canvas canvas, int contentWidth, int contentHeight) {
 
-        final double currencyValueSpan = mMaxValueCurrecncyVal - mMinValueCurrecncyVal;
+        final double currencyValueSpan = mMaxValueCurrencyVal - mMinValueCurrencyVal;
         final int amountOfCheckpoints = AMOUNT_OF_MEASUERD_CURRENCY_LINES;
         final float distanceBetweenCheckpoints = (float) contentHeight / (float) amountOfCheckpoints;
 
@@ -242,7 +242,7 @@ public class GraphView extends View {
 
         //we need to calculate the total length of the values that lies between maximum and minimum
         final double unixTimestampSpan = ((double) mMaxUnixTimeStampVal - mMinUnixTimestampVal);
-        final double currencyValueSpan = mMaxValueCurrecncyVal - mMinValueCurrecncyVal;
+        final double currencyValueSpan = mMaxValueCurrencyVal - mMinValueCurrencyVal;
 
         //those are the values of the view that will be drawn
         float startX, startY, stopX, stopY;
@@ -265,8 +265,8 @@ public class GraphView extends View {
 
             //calculate stop point in relative units (0 ... 1)
             //we also need to invert y axis , because in android view Y axis goes from top to bottom
-            float relativeStartY = 1f - (float) toRelative(currencyValueSpan, currItem.getCurrencyValue(), mMinValueCurrecncyVal);
-            float relativeStopY = 1f - (float) toRelative(currencyValueSpan, nextItem.getCurrencyValue(), mMinValueCurrecncyVal);
+            float relativeStartY = 1f - (float) toRelative(currencyValueSpan, currItem.getCurrencyValue(), mMinValueCurrencyVal);
+            float relativeStopY = 1f - (float) toRelative(currencyValueSpan, nextItem.getCurrencyValue(), mMinValueCurrencyVal);
 
             //to obtain the actual points on the view we need
             //to translate back the relative positions to actual
@@ -308,8 +308,8 @@ public class GraphView extends View {
 
     private void calculateEdgeValues() {
         //find min and max values of currency
-        mMinValueCurrecncyVal = Stream.of(mDataList).map(GraphPoint::getCurrencyValue).min(Double::compareTo).orElse(0.0);
-        mMaxValueCurrecncyVal = Stream.of(mDataList).map(GraphPoint::getCurrencyValue).max(Double::compareTo).orElse(0.0);
+        mMinValueCurrencyVal = Stream.of(mDataList).map(GraphPoint::getCurrencyValue).min(Double::compareTo).orElse(0.0);
+        mMaxValueCurrencyVal = Stream.of(mDataList).map(GraphPoint::getCurrencyValue).max(Double::compareTo).orElse(0.0);
 
         //find min and max values of timestamp
         mMinUnixTimestampVal = Stream.of(mDataList).map(GraphPoint::getUnixTimestamp).min(Long::compareTo).orElse(0l);

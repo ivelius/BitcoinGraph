@@ -1,6 +1,7 @@
 package com.example.yanbraslavski.bitcoingraph.main;
 
 import com.annimon.stream.Collectors;
+import com.annimon.stream.Optional;
 import com.annimon.stream.Stream;
 import com.example.yanbraslavski.bitcoingraph.api.BlockChainApi;
 import com.example.yanbraslavski.bitcoingraph.mvp.BasePresenter;
@@ -76,5 +77,13 @@ public class MainPresenter extends BasePresenter<MainContract.IMainView> impleme
     public void unbindView() {
         super.unbindView();
         if (subscription != null) subscription.unsubscribe();
+    }
+
+    /**
+     * Returns the cached data used by this presenter.
+     * The data is not promised to exist , hence return type is optional
+     */
+    public Optional<MainContract.IMainView.DisplayModel> getCachedDisplayModel() {
+        return (mCachedDisplayModel != null) ? Optional.of(mCachedDisplayModel) : Optional.empty();
     }
 }

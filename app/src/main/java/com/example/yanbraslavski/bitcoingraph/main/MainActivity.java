@@ -68,4 +68,8 @@ public class MainActivity extends AppCompatActivity implements MainContract.IMai
         unbindPresenter();
         super.onDestroy();
     }
+
+    public MainContract.IMainPresenter getMainPresenter() {
+        return mMainPresenter;
+    }
 }
