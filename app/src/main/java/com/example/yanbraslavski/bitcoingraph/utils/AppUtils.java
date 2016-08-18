@@ -1,7 +1,10 @@
 package com.example.yanbraslavski.bitcoingraph.utils;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.view.Surface;
@@ -13,7 +16,6 @@ import android.view.Surface;
 public class AppUtils {
 
     /**
-     *
      * @return true if current activity is in Landscape mode
      */
     public static boolean isLandscape(final @NonNull Activity activity) {
@@ -25,6 +27,21 @@ public class AppUtils {
 
     public static boolean isPortrait(final @NonNull Activity activity) {
         return !isLandscape(activity);
+    }
+
+    /**
+     * Determine if We Have an Internet Connection
+     */
+    public static boolean isConnected(Context context) {
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+
+        return isConnected;
+
     }
 
     /**

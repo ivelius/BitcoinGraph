@@ -4,11 +4,13 @@ import com.annimon.stream.Collectors;
 import com.annimon.stream.Optional;
 import com.annimon.stream.Stream;
 import com.example.yanbraslavski.bitcoingraph.api.BlockChainApi;
+import com.example.yanbraslavski.bitcoingraph.app.BitcoinApp;
 import com.example.yanbraslavski.bitcoingraph.connectivity.ConnectionLostEvent;
 import com.example.yanbraslavski.bitcoingraph.connectivity.ConnectionRestoredEvent;
 import com.example.yanbraslavski.bitcoingraph.mvp.BasePresenter;
 import com.example.yanbraslavski.bitcoingraph.rx.RxUtils;
 import com.example.yanbraslavski.bitcoingraph.rx.eventbus.RxBus;
+import com.example.yanbraslavski.bitcoingraph.utils.AppUtils;
 import com.example.yanbraslavski.bitcoingraph.views.GraphView;
 
 import android.os.Bundle;
@@ -83,6 +85,12 @@ public class MainPresenter extends BasePresenter<MainContract.IMainView> impleme
     @Override
     public void bindView(MainContract.IMainView view) {
         super.bindView(view);
+
+        //we want to tell user in case there is no connection right now
+        if(!AppUtils.isConnected(BitcoinApp.getContext())){
+            mView.onConnectionLost();
+            return;
+        }
 
         //register for connectivity events
         mSubscriptions.add(RxBus.instance.subscribeOnMainThread(ConnectionLostEvent.class,

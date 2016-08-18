@@ -2,9 +2,13 @@
 <manifest package="com.example.yanbraslavski.bitcoingraph"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!--We need this to make api calls-->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Need this to monitor Connectivity state -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
+        android:name=".app.BitcoinApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"

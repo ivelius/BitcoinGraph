@@ -6,4 +6,6 @@
 
     <color name="graphBackground">#ccc</color>
     <color name="graphColor">#33b5e5</color>
+    <color name="alert_background">#FF0000</color>
+    <color name="font_alert">#FFFFFF</color>
 </resources>
