@@ -33,7 +33,7 @@ public class GraphView extends View {
     public static final int DEFAULT_VALUE_LINES_COLOR = Color.BLACK;
     public static final int DEFAULT_VALUE_LINES_STOKE_WIDTH = 1;
     public static final int DEFAULT_GRAPH_STOKE_WIDTH = 5;
-    public static final int AMOUNT_OF_MEASUERD_CURRENCY_LINES = 10;
+    public static final int AMOUNT_OF_MEASURED_CURRENCY_LINES = 10;
     public static final String MEASUREMENT_VALUE_STRING_PATTERN = "***";
     public static final int DEFAULT_TEXT_SIZE = 24;
     //render data list
@@ -197,10 +197,10 @@ public class GraphView extends View {
     private void drawCurrencyMetrics(Canvas canvas, int contentWidth, int contentHeight) {
 
         final double currencyValueSpan = mMaxValueCurrencyVal - mMinValueCurrencyVal;
-        final int amountOfCheckpoints = AMOUNT_OF_MEASUERD_CURRENCY_LINES;
+        final int amountOfCheckpoints = AMOUNT_OF_MEASURED_CURRENCY_LINES;
         final float distanceBetweenCheckpoints = (float) contentHeight / (float) amountOfCheckpoints;
 
-        final float amountOfCurrencyForOnePoint = (float) currencyValueSpan / (float) AMOUNT_OF_MEASUERD_CURRENCY_LINES;
+        final float amountOfCurrencyForOnePoint = (float) currencyValueSpan / (float) AMOUNT_OF_MEASURED_CURRENCY_LINES;
 
         //setup the line paint for graph
         mLinePaint.setColor(DEFAULT_VALUE_LINES_COLOR);

@@ -1,6 +1,7 @@
 package com.example.yanbraslavski.bitcoingraph.main;
 
 import com.example.yanbraslavski.bitcoingraph.R;
+import com.example.yanbraslavski.bitcoingraph.app.BitcoinApp;
 import com.example.yanbraslavski.bitcoingraph.views.GraphView;
 
 import android.os.Bundle;
@@ -28,6 +29,9 @@ public class MainActivity extends AppCompatActivity implements MainContract.IMai
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //dagger inject
+        BitcoinApp.getComponent().inject(this);
 
         mGraphView = (GraphView) findViewById(R.id.graph_view);
         mTitleTextView = (TextView) findViewById(R.id.graph_title_text_view);

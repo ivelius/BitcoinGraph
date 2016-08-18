@@ -17,6 +17,8 @@ import android.os.Bundle;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import rx.subscriptions.CompositeSubscription;
 
 /**
@@ -30,7 +32,12 @@ public class MainPresenter extends BasePresenter<MainContract.IMainView> impleme
     private final BlockChainApi mApi;
     private MainContract.IMainView.DisplayModel mCachedDisplayModel;
 
+    @Inject
+    RxBus mRxBus;
+
     public MainPresenter() {
+        //dagger inject
+       BitcoinApp.getComponent().inject(this);
         mApi = new BlockChainApi();
         mSubscriptions = new CompositeSubscription();
     }
@@ -93,9 +100,9 @@ public class MainPresenter extends BasePresenter<MainContract.IMainView> impleme
         }
 
         //register for connectivity events
-        mSubscriptions.add(RxBus.instance.subscribeOnMainThread(ConnectionLostEvent.class,
+        mSubscriptions.add(mRxBus.subscribeOnMainThread(ConnectionLostEvent.class,
                 event -> mView.onConnectionLost()));
-        mSubscriptions.add(RxBus.instance.subscribeOnMainThread(ConnectionRestoredEvent.class,
+        mSubscriptions.add(mRxBus.subscribeOnMainThread(ConnectionRestoredEvent.class,
                 event -> mView.onConnectionRestored()));
     }
 

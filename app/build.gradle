@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'me.tatarka.retrolambda'
 
 android {
@@ -41,6 +42,7 @@ def androidTestRunnerVersion = "0.4.+"
 def junitVersion = "4.12"
 def mockitoVersion = '1.10.19'
 def powerMockito = '1.6.2'
+def daggerVersion = "2.5"
 
 //this is a not so elegant fix for conflicting dependencies
 configurations.all {
@@ -50,6 +52,13 @@ configurations.all {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
+    // dependancy injections
+    // apt command comes from the android-apt plugin
+    apt "com.google.dagger:dagger-compiler:$daggerVersion"
+    compile "com.google.dagger:dagger:$daggerVersion"
+    provided 'javax.annotation:jsr250-api:1.0'
+
+    //stream api
     compile "com.annimon:stream:$annimonStreamApiVersion"
 
     //support library

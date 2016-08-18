@@ -15,7 +15,7 @@ import rx.subjects.Subject;
 public class RxBus {
 
     //TODO : replace with dagger
-    public static RxBus instance = new RxBus();
+//    public static RxBus instance = new RxBus();
 
     private final Subject<IRxEvent, IRxEvent> _bus = new SerializedSubject<>(PublishSubject.create());
 
