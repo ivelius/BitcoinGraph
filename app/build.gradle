@@ -54,6 +54,7 @@ dependencies {
 
     //support library
     compile "com.android.support:appcompat-v7:$supportLibraryVersion"
+    compile "com.android.support:design:$supportLibraryVersion"
 
     //Retrofit
     compile "com.squareup.retrofit2:retrofit:$retrofitVersion"

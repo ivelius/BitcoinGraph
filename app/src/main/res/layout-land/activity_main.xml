@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?><!--In Landscape we want to see the graph for the entire screen -->
-<FrameLayout android:id="@+id/activity_main"
+<android.support.design.widget.CoordinatorLayout
+    android:id="@+id/coordinator_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -16,4 +17,4 @@
         android:padding="@dimen/graph_padding"
         app:graphColor="@color/graphColor" />
 
-</FrameLayout>
+</android.support.design.widget.CoordinatorLayout>

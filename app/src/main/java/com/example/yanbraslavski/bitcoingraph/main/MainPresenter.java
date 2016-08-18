@@ -4,15 +4,18 @@ import com.annimon.stream.Collectors;
 import com.annimon.stream.Optional;
 import com.annimon.stream.Stream;
 import com.example.yanbraslavski.bitcoingraph.api.BlockChainApi;
+import com.example.yanbraslavski.bitcoingraph.connectivity.ConnectionLostEvent;
+import com.example.yanbraslavski.bitcoingraph.connectivity.ConnectionRestoredEvent;
 import com.example.yanbraslavski.bitcoingraph.mvp.BasePresenter;
 import com.example.yanbraslavski.bitcoingraph.rx.RxUtils;
+import com.example.yanbraslavski.bitcoingraph.rx.eventbus.RxBus;
 import com.example.yanbraslavski.bitcoingraph.views.GraphView;
 
 import android.os.Bundle;
 
 import java.util.List;
 
-import rx.Subscription;
+import rx.subscriptions.CompositeSubscription;
 
 /**
  * Created by yan.braslavski on 8/17/16.
@@ -21,12 +24,13 @@ import rx.Subscription;
 public class MainPresenter extends BasePresenter<MainContract.IMainView> implements MainContract.IMainPresenter {
 
     public static final String KEY_CACHED_DATA = "cached_data";
-    private Subscription subscription;
-    private BlockChainApi mApi = new BlockChainApi();
+    private final CompositeSubscription mSubscriptions;
+    private final BlockChainApi mApi;
     private MainContract.IMainView.DisplayModel mCachedDisplayModel;
 
     public MainPresenter() {
         mApi = new BlockChainApi();
+        mSubscriptions = new CompositeSubscription();
     }
 
     @Override
@@ -53,7 +57,7 @@ public class MainPresenter extends BasePresenter<MainContract.IMainView> impleme
         }
 
         //if there is no data , we need to fetch it through the api
-        subscription = mApi.getBitcoinGraph().compose(RxUtils.createBackgroundTransformer())
+        mSubscriptions.add(mApi.getBitcoinGraph().compose(RxUtils.createBackgroundTransformer())
                 //transform model data into view data
                 .map(graphModel -> {
                     //use stream api to convert list of model data to list of graph data
@@ -63,9 +67,7 @@ public class MainPresenter extends BasePresenter<MainContract.IMainView> impleme
 
                     return new MainContract.IMainView.DisplayModel(graphModel.getName(), dataList);
                 })
-                .subscribe(this::onDisplayModelLoaded,
-                        throwable -> throwable.printStackTrace()
-                );
+                .subscribe(this::onDisplayModelLoaded, this::onDataLoadFailure));
     }
 
     private void onDisplayModelLoaded(final MainContract.IMainView.DisplayModel displayModel) {
@@ -73,10 +75,26 @@ public class MainPresenter extends BasePresenter<MainContract.IMainView> impleme
         mView.setDisplayModel(displayModel);
     }
 
+    private void onDataLoadFailure(Throwable throwable) {
+        throwable.printStackTrace();
+        mView.showDataLoadFailure(throwable.getMessage());
+    }
+
+    @Override
+    public void bindView(MainContract.IMainView view) {
+        super.bindView(view);
+
+        //register for connectivity events
+        mSubscriptions.add(RxBus.instance.subscribeOnMainThread(ConnectionLostEvent.class,
+                event -> mView.onConnectionLost()));
+        mSubscriptions.add(RxBus.instance.subscribeOnMainThread(ConnectionRestoredEvent.class,
+                event -> mView.onConnectionRestored()));
+    }
+
     @Override
     public void unbindView() {
         super.unbindView();
-        if (subscription != null) subscription.unsubscribe();
+        mSubscriptions.unsubscribe();
     }
 
     /**

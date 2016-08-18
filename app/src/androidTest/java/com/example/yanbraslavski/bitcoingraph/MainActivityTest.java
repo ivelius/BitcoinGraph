@@ -26,7 +26,7 @@ import static org.hamcrest.core.AllOf.allOf;
  * This test makes sure that our activity presents all required elements
  */
 @RunWith(AndroidJUnit4.class)
-public class GraphViewTest {
+public class MainActivityTest {
 
     @Rule
     public ActivityTestRule<MainActivity> mActivityRule = new ActivityTestRule(MainActivity.class);

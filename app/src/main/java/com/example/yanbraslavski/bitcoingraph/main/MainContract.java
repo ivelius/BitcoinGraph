@@ -17,11 +17,19 @@ import java.util.List;
  */
 public interface MainContract {
 
+    /**
+     * Contract  for interaction between view -> presenter
+     */
     @UiThread
     interface IMainView extends IView<IMainPresenter> {
-        //TODO : contract here for interaction between view -> presenter
 
         void setDisplayModel(DisplayModel displayModel);
+
+        void showDataLoadFailure(String message);
+
+        void onConnectionLost();
+
+        void onConnectionRestored();
 
         /**
          * Describes the data model that view requires to display itself
@@ -85,6 +93,9 @@ public interface MainContract {
         }
     }
 
+    /**
+     * Contract  for interaction between presenter -> view
+     */
     interface IMainPresenter extends IPresenter<IMainView> {
         /**
          * We will offer the presenter to persist it's data
@@ -98,6 +109,6 @@ public interface MainContract {
         void restoreState(Bundle savedInstanceState);
 
         void loadData();
-        //TODO : contract here for interaction between presenter -> view
+
     }
 }
