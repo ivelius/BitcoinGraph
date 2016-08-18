@@ -1,7 +1,9 @@
 package com.example.yanbraslavski.bitcoingraph.app;
 
+
 import com.example.yanbraslavski.bitcoingraph.di.AppComponent;
 import com.example.yanbraslavski.bitcoingraph.di.DaggerAppComponent;
+import com.example.yanbraslavski.bitcoingraph.di.GlobalModule;
 
 import android.app.Application;
 import android.content.Context;
@@ -31,7 +33,7 @@ public class BitcoinApp extends Application {
 
     private void initDaggerAppComponent() {
         component = DaggerAppComponent.builder()
-//                .globalModule(new GlobalModule())
+                .globalModule(new GlobalModule())
                 .build();
     }
 

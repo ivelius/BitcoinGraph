@@ -29,16 +29,17 @@ public class MainPresenter extends BasePresenter<MainContract.IMainView> impleme
 
     public static final String KEY_CACHED_DATA = "cached_data";
     private final CompositeSubscription mSubscriptions;
-    private final BlockChainApi mApi;
     private MainContract.IMainView.DisplayModel mCachedDisplayModel;
 
     @Inject
-    RxBus mRxBus;
+    protected BlockChainApi mApi;
+
+    @Inject
+    protected RxBus mRxBus;
 
     public MainPresenter() {
         //dagger inject
-       BitcoinApp.getComponent().inject(this);
-        mApi = new BlockChainApi();
+        BitcoinApp.getComponent().inject(this);
         mSubscriptions = new CompositeSubscription();
     }
 
@@ -94,7 +95,7 @@ public class MainPresenter extends BasePresenter<MainContract.IMainView> impleme
         super.bindView(view);
 
         //we want to tell user in case there is no connection right now
-        if(!AppUtils.isConnected(BitcoinApp.getContext())){
+        if (!AppUtils.isConnected(BitcoinApp.getContext())) {
             mView.onConnectionLost();
             return;
         }

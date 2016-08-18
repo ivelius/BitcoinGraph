@@ -5,6 +5,7 @@ import com.example.yanbraslavski.bitcoingraph.app.BitcoinApp;
 import com.example.yanbraslavski.bitcoingraph.views.GraphView;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -12,18 +13,30 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import javax.inject.Inject;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * The entry point of the app.
  * It is also implements the view part of the MVP structure.
  */
 public class MainActivity extends AppCompatActivity implements MainContract.IMainView {
 
-    private GraphView mGraphView;
-    private TextView mTitleTextView;
-    private MainContract.IMainPresenter mMainPresenter;
-    private CoordinatorLayout mCoordinatorLayout;
-    private ViewGroup mLayoutContainer;
-    private View mNoConnectonView;
+    @BindView(R.id.graph_view)
+    GraphView mGraphView;
+    @Nullable
+    @BindView(R.id.graph_title_text_view)
+    TextView mTitleTextView;
+    @BindView(R.id.coordinator_layout)
+    CoordinatorLayout mCoordinatorLayout;
+    @BindView(R.id.layout_container)
+    ViewGroup mLayoutContainer;
+    private View mNoConnectionView;
+
+    @Inject
+    protected MainContract.IMainPresenter mMainPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,15 +45,13 @@ public class MainActivity extends AppCompatActivity implements MainContract.IMai
 
         //dagger inject
         BitcoinApp.getComponent().inject(this);
+        ButterKnife.bind(this);
 
-        mGraphView = (GraphView) findViewById(R.id.graph_view);
-        mTitleTextView = (TextView) findViewById(R.id.graph_title_text_view);
-        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
-        mLayoutContainer = (ViewGroup) findViewById(R.id.layout_container);
-        mNoConnectonView = View.inflate(this, R.layout.no_connection_notification_layout, null);
+        //this view is created by inflation. It will be added and removed as needed
+        mNoConnectionView = View.inflate(this, R.layout.no_connection_notification_layout, null);
 
         //create and bind to the presenter
-        bindPresenter(new MainPresenter());
+        bindPresenter(mMainPresenter);
         mMainPresenter.restoreState(savedInstanceState);
         mMainPresenter.loadData();
     }
@@ -48,7 +59,6 @@ public class MainActivity extends AppCompatActivity implements MainContract.IMai
 
     @Override
     public void bindPresenter(MainContract.IMainPresenter presenter) {
-        mMainPresenter = presenter;
         mMainPresenter.bindView(this);
     }
 
@@ -86,12 +96,12 @@ public class MainActivity extends AppCompatActivity implements MainContract.IMai
 
     @Override
     public void onConnectionLost() {
-        mLayoutContainer.addView(mNoConnectonView, 0);
+        mLayoutContainer.addView(mNoConnectionView, 0);
     }
 
     @Override
     public void onConnectionRestored() {
-        mLayoutContainer.removeView(mNoConnectonView);
+        mLayoutContainer.removeView(mNoConnectionView);
     }
 
     @Override

@@ -43,6 +43,7 @@ def junitVersion = "4.12"
 def mockitoVersion = '1.10.19'
 def powerMockito = '1.6.2'
 def daggerVersion = "2.5"
+def butterKnifeVersion = "8.2.1"
 
 //this is a not so elegant fix for conflicting dependencies
 configurations.all {
@@ -57,6 +58,8 @@ dependencies {
     apt "com.google.dagger:dagger-compiler:$daggerVersion"
     compile "com.google.dagger:dagger:$daggerVersion"
     provided 'javax.annotation:jsr250-api:1.0'
+    compile "com.jakewharton:butterknife:$butterKnifeVersion"
+    apt "com.jakewharton:butterknife-compiler:$butterKnifeVersion"
 
     //stream api
     compile "com.annimon:stream:$annimonStreamApiVersion"
