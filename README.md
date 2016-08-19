@@ -25,3 +25,7 @@ Well basically all mentioned above is an attempt to convince you that I am much 
 But it is always up to you to decide...
 
 Hope to see you soon ;)
+
+Screenshot
+==========
+[![ScreenShot](https://github.com/ivelius/BitcoinGraph/blob/master/Screenshot.png?raw=true)](https://github.com/ivelius/BitcoinGraph/blob/master/Screenshot.png?raw=true)
