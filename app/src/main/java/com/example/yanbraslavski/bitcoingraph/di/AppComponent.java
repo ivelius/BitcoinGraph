@@ -20,8 +20,6 @@ import dagger.Component;
 )
 public interface AppComponent {
     void inject(MainActivity mainActivity);
-
-    void inject(MainPresenter mainPresenter);
-
     void inject(NetworkStateReceiver networkStateReceiver);
+    void inject(MainPresenter mainPresenter);
 }

@@ -24,14 +24,14 @@ public class BitcoinApp extends Application {
         //It is perfectly fine to retain a static reference to app context
         //google it if you have doubts...
         context = this;
-        initDaggerAppComponent();
+        initAppComponent();
     }
 
     public static Context getContext() {
         return context;
     }
 
-    private void initDaggerAppComponent() {
+    private void initAppComponent() {
         component = DaggerAppComponent.builder()
                 .globalModule(new GlobalModule())
                 .build();

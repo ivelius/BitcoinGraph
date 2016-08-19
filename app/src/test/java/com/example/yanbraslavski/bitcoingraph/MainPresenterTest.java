@@ -1,16 +1,20 @@
 package com.example.yanbraslavski.bitcoingraph;
 
+import com.example.yanbraslavski.bitcoingraph.api.BlockChainApi;
 import com.example.yanbraslavski.bitcoingraph.main.MainContract;
 import com.example.yanbraslavski.bitcoingraph.main.MainPresenter;
+import com.example.yanbraslavski.bitcoingraph.rx.eventbus.RxBus;
+import com.example.yanbraslavski.bitcoingraph.utils.AppUtils;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 import org.powermock.api.mockito.PowerMockito;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 
 import java.lang.reflect.Field;
 
@@ -28,12 +32,17 @@ import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
  */
 public class MainPresenterTest {
 
-    @Spy
     private MainPresenter mMainPresenter;
 
+    @BeforeClass
+    public static void init() {
+    }
+
     @Before
-    public void setup() {
+    public void setup() throws Exception {
+        //in case we would have annotated members in this test case
         MockitoAnnotations.initMocks(this);
+        mMainPresenter = Mockito.spy(createPresenterWithFakeParams());
         assertNotNull(mMainPresenter);
     }
 
@@ -78,10 +87,10 @@ public class MainPresenterTest {
         mMainPresenter.onSaveInstanceState(bundle);
 
         //verify that data was stored to the bundle
-        verify(bundle).putParcelable(anyString(),eq(mockDisplayModel));
+        verify(bundle).putParcelable(anyString(), eq(mockDisplayModel));
 
         //create a new presenter and restore state on it from the bundle
-        mMainPresenter = Mockito.spy(MainPresenter.class);
+        mMainPresenter = Mockito.spy(createPresenterWithFakeParams());
         mMainPresenter.restoreState(bundle);
 
         //verify that data was fetched from the bundle
@@ -107,4 +116,11 @@ public class MainPresenterTest {
     }
 
 
+    @NonNull
+    private MainPresenter createPresenterWithFakeParams() {
+        RxBus rxBus = new RxBus();
+        BlockChainApi api = Mockito.mock(BlockChainApi.class);
+        AppUtils appUtils = Mockito.mock(AppUtils.class);
+        return new MainPresenter(rxBus, api, appUtils);
+    }
 }

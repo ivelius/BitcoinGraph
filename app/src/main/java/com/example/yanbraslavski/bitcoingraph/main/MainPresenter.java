@@ -31,15 +31,15 @@ public class MainPresenter extends BasePresenter<MainContract.IMainView> impleme
     private final CompositeSubscription mSubscriptions;
     private MainContract.IMainView.DisplayModel mCachedDisplayModel;
 
-    @Inject
-    protected BlockChainApi mApi;
+    private BlockChainApi mApi;
+    private RxBus mRxBus;
+    private AppUtils mAppUtils;
 
     @Inject
-    protected RxBus mRxBus;
-
-    public MainPresenter() {
-        //dagger inject
-        BitcoinApp.getComponent().inject(this);
+    public MainPresenter(RxBus rxBus, BlockChainApi api, AppUtils appUtils) {
+        mApi = api;
+        mRxBus = rxBus;
+        mAppUtils = appUtils;
         mSubscriptions = new CompositeSubscription();
     }
 
@@ -95,16 +95,22 @@ public class MainPresenter extends BasePresenter<MainContract.IMainView> impleme
         super.bindView(view);
 
         //we want to tell user in case there is no connection right now
-        if (!AppUtils.isConnected(BitcoinApp.getContext())) {
+        if (!mAppUtils.isConnected(BitcoinApp.getContext())) {
             mView.onConnectionLost();
             return;
         }
 
         //register for connectivity events
-        mSubscriptions.add(mRxBus.subscribeOnMainThread(ConnectionLostEvent.class,
-                event -> mView.onConnectionLost()));
-        mSubscriptions.add(mRxBus.subscribeOnMainThread(ConnectionRestoredEvent.class,
-                event -> mView.onConnectionRestored()));
+        mSubscriptions.add(mRxBus.subscribeOnMainThread(ConnectionLostEvent.class, this::onConnectionLostEventReceived));
+        mSubscriptions.add(mRxBus.subscribeOnMainThread(ConnectionRestoredEvent.class, this::onConnectionRestoredEventReceived));
+    }
+
+    private void onConnectionLostEventReceived(ConnectionLostEvent event) {
+        mView.onConnectionLost();
+    }
+
+    private void onConnectionRestoredEventReceived(ConnectionRestoredEvent event) {
+        mView.onConnectionRestored();
     }
 
     @Override

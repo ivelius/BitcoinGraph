@@ -18,21 +18,21 @@ public class AppUtils {
     /**
      * @return true if current activity is in Landscape mode
      */
-    public static boolean isLandscape(final @NonNull Activity activity) {
+    public boolean isLandscape(final @NonNull Activity activity) {
         //detect orientation
         int orientation = getScreenOrientation(activity);
         return (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE ||
                 orientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
     }
 
-    public static boolean isPortrait(final @NonNull Activity activity) {
+    public boolean isPortrait(final @NonNull Activity activity) {
         return !isLandscape(activity);
     }
 
     /**
      * Determine if We Have an Internet Connection
      */
-    public static boolean isConnected(Context context) {
+    public boolean isConnected(Context context) {
         ConnectivityManager cm =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -47,7 +47,7 @@ public class AppUtils {
     /**
      * Returns orientation of current activity
      */
-    public static int getScreenOrientation(Activity activity) {
+    public int getScreenOrientation(Activity activity) {
         int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
         DisplayMetrics dm = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
