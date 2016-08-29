@@ -1,13 +1,14 @@
 package com.example.yanbraslavski.bitcoingraph;
 
 import com.example.yanbraslavski.bitcoingraph.api.BlockChainApi;
+import com.example.yanbraslavski.bitcoingraph.di.MockAppComponent;
+import com.example.yanbraslavski.bitcoingraph.di.MockGlobalModule;
 import com.example.yanbraslavski.bitcoingraph.main.MainContract;
 import com.example.yanbraslavski.bitcoingraph.main.MainPresenter;
 import com.example.yanbraslavski.bitcoingraph.rx.eventbus.RxBus;
 import com.example.yanbraslavski.bitcoingraph.utils.AppUtils;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -34,12 +35,17 @@ public class MainPresenterTest {
 
     private MainPresenter mMainPresenter;
 
-    @BeforeClass
-    public static void init() {
-    }
 
     @Before
     public void setup() throws Exception {
+
+        //FIXME : Does not compile :(
+        MockAppComponent component = MockAppComponent.builder()
+                .mockGlobalModule(new MockGlobalModule())
+                .build();
+
+        component.inject(this);
+
         //in case we would have annotated members in this test case
         MockitoAnnotations.initMocks(this);
         mMainPresenter = Mockito.spy(createPresenterWithFakeParams());

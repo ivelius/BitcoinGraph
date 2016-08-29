@@ -18,14 +18,14 @@ public class AppUtils {
     /**
      * @return true if current activity is in Landscape mode
      */
-    public boolean isLandscape(final @NonNull Activity activity) {
+    public static boolean isLandscape(final @NonNull Activity activity) {
         //detect orientation
         int orientation = getScreenOrientation(activity);
         return (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE ||
                 orientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
     }
 
-    public boolean isPortrait(final @NonNull Activity activity) {
+    public static boolean isPortrait(final @NonNull Activity activity) {
         return !isLandscape(activity);
     }
 
@@ -47,7 +47,7 @@ public class AppUtils {
     /**
      * Returns orientation of current activity
      */
-    public int getScreenOrientation(Activity activity) {
+    public static int getScreenOrientation(Activity activity) {
         int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
         DisplayMetrics dm = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
