@@ -12,11 +12,10 @@ import dagger.Component;
 @Singleton
 @Component(
         modules = {
-                GlobalModule.class
+                MockGlobalModule.class
                 //TODO : More modules here
         }
 )
 public interface MockAppComponent extends AppComponent {
-
     void inject(MainPresenterTest mainPresenterTest);
 }
