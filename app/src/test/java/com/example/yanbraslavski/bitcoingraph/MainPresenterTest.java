@@ -40,7 +40,7 @@ public class MainPresenterTest {
     public void setup() throws Exception {
 
         //FIXME : Does not compile :(
-        MockAppComponent component = MockAppComponent.builder()
+        MockAppComponent component = DaggerMockAppComponent.builder()
                 .mockGlobalModule(new MockGlobalModule())
                 .build();
 
