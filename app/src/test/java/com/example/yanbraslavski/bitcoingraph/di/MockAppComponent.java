@@ -18,4 +18,5 @@ import dagger.Component;
 )
 public interface MockAppComponent extends AppComponent {
     void inject(MainPresenterTest mainPresenterTest);
+
 }
